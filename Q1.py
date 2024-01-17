@@ -4,49 +4,33 @@ Created on Wed Jan 17 17:02:24 2024
 
 @author: turzo
 """
+
 # automation.py
 # Import necessary libraries
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-import time
 import datetime
+import time
+from datetime import datetime, timedelta
 import openpyxl
 from openpyxl import workbook
 
 # open workbook
-wb = openpyxl.load_workbook('C:\\Users\ASUS\OneDrive\Desktop\Q1.xlsx')
-# delete current sheet
-if 'Sheet1' in wb.sheetnames:
-    del wb['Sheet1']
- 
-data = [('keyword1', 'Dhaka'),
-        ('keyword2', 'University'),
-        ('keyword3', 'Cricket'),
-        ('keyword4', 'Bombay'),
-        ('keyword5', 'Football'),
-        ('keyword6', 'Paper'),
-        ('keyword7', 'Knife'),]   
- 
-days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-
-# create new sheets named maonday, tuesday, ...
-for day in days:
-    ws = wb.create_sheet(day)
-# add the data
-    for row in data:
-        ws.append(row)
-        
+path_to_excel_file = 'C:\\Users\ASUS\OneDrive\Desktop\Q1.xlsx'
+wb = openpyxl.load_workbook(path_to_excel_file)
 # select by sheet name
-ws = wb['Monday']
+now = datetime.now()
+ws = wb[now.strftime("%A")]
 
 # Initialize the Chrome driver
-service = Service('C:\\Users\ASUS\.spyder-py3\chromedriver.exe')
+path_to_chromedriver = 'C:\\Users\ASUS\.spyder-py3\chromedriver.exe'
+service = Service(path_to_chromedriver)
 driver = webdriver.Chrome(service=service)
 
 def automation():
-    for i in range(1,8):
+    for i in range(2,9):
         # Navigate to Google
         url = "https://www.google.com"
         driver.get(url)
@@ -86,16 +70,23 @@ def automation():
 
         ws['D'+str(i)] = longest_string
         ws['E'+str(i)] = shortest_string
-        wb.save('C:\\Users\ASUS\OneDrive\Desktop\Q1.xlsx')
+        wb.save(path_to_excel_file)
         
-run_at = datetime.time(hour=17, minute=56)
+# Get the current time
+now = datetime.now()
+h1 = input('Enter hour to run at: ')
+m1 = input('Enter miniute to run at: ')
 
-while True:
-    # Get the current time
-    now = datetime.datetime.now().time()
+# Set the specific run time
+run_at = now.replace(hour=int(h1), minute=int(m1))
+# If the specific run time is less than the current time, set it to run tomorrow
+if now > run_at:
+    run_at += timedelta(days=1)
 
-    # Check if the current time is equal to the specified time
-    if now.hour == run_at.hour and now.minute == run_at.minute:
-        automation()
-        
-        time.sleep(60)  # Delay execution for 60 seconds
+# Use time.sleep to wait until the specific run time
+time.sleep(60)
+
+automation()
+
+
+
